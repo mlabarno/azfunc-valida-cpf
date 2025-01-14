@@ -6,14 +6,20 @@ using Newtonsoft.Json;
 
 namespace azfunc_valida_cpf
 {
-    public static class fnValidaCPF
+    public class fnValidaCPF
     {
-        [Function("fnvalidacpf")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req, 
-            ILogger log)
+        private readonly ILogger<fnValidaCPF> _logger;
+
+        public fnValidaCPF(ILogger<fnValidaCPF> logger)
         {
-            log.LogInformation("Iniciando a validacao do CPF.");
+            _logger = logger;
+        }
+
+        [Function("fnvalidacpf")]
+        public async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req)
+        {
+            _logger.LogInformation("Iniciando a validacao do CPF.");
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync() ?? string.Empty;
             var data = JsonConvert.DeserializeObject<dynamic>(requestBody);
 
@@ -32,7 +38,7 @@ namespace azfunc_valida_cpf
             return new OkObjectResult(responseMsg);
         }
 
-        public static bool ValidaCPF(string cpf) {
+        public bool ValidaCPF(string cpf) {
             if (string.IsNullOrEmpty(cpf)) {
                 return false;
             }
@@ -83,7 +89,5 @@ namespace azfunc_valida_cpf
 
             return cpf.EndsWith(digito);
         }
-
     }
-    
 }
